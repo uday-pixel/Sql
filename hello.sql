@@ -37,6 +37,8 @@ select * from actor where first_name like 'S%T';-- aise data jiska first char s 
 -- 15-05-24
 
 -- DISTINIT,COUNT
+use sakila;
+select * from actor;
 select distinct(FIRST_NAME) FROM ACTOR;
 select COUNT(FIRST_NAME) FROM ACTOR;
 
@@ -61,7 +63,7 @@ SELECT FIRST_NAME,LAST_NAME,concat_ws('-',FIRST_NAME,LAST_NAME,'$')FROM ACTOR;
 -- TRIM=>WHITE,CHARACTER
 
 SELECT FIRST_NAME,'     HEY     ' FROM ACTOR;
-SELECT FIRST_NAME,trim('     HEY     ' )FROM ACTOR; -- STARTING AUR ENDING KA SPACE KO REMOVE KAREGA BICH KA SPACE KO REMEOVE NHI KREGA
+SELECT FIRST_NAME,trim('     HEY     ' )FROM ACTOR	; -- STARTING AUR ENDING KA SPACE KO REMOVE KAREGA BICH KA SPACE KO REMEOVE NHI KREGA
 
 -- LOWER(),UPPER(),CONCAT()CONCAT_WS(),LENGTH().SUBSTR(),TRIM(),INSRT()---- THESRE ARE STRING FUNCTIONS
 -- LPAD AND RPAD -- THESE ARE STRING FUNCTIONS
@@ -181,3 +183,118 @@ select count(amount),sum(amount) ,avg(amount),min(amount),max(amount) from payme
    select month(payment_date), count(customer_id),max(rental_id),min(rental_id),avg(amount)
    from payment group by (month(payment_date)) order by (month(payment_date));
    
+   -- 20-5-25
+   
+   -- joins in sql
+   use sakila;
+   select*from address;
+   select count(address_id) from address;
+    select count(address2) from address;
+    -- foreign key - ek aise colum jo aap ke 2  table ke bech connection banan me help karta ho
+    
+    -- 20-05-25
+    use sakila;
+    select * from actor;
+    select * from film_actor;
+	select * from film;
+ -- 1       
+select fa.actor_id,fa.film_id,f.film_id,f.title
+from film_actor as fa
+join film as f on fa.film_id=f.film_id;
+
+-- 2 
+select fa.actor_id,fa.film_id,f.film_id,f.title
+from film_actor as fa
+join film as f on fa.film_id=f.film_id where length>100;
+
+
+-- 4
+select film_id,title,rating from film where rating ="NC-17"
+order by film_id desc;
+
+-- 3
+select actor_id,count(film_id) from film_actor
+group by actor_id;
+
+-- self join 
+
+-- 22 -05-2004
+
+use sakila;
+select * from payment;
+select customer_id, count(payment_id) from payment where customer_id>3 group by customer_id;
+
+select customer_id, count(payment_id) from payment where count(payment_id)>3 group by customer_id;  -- filter data nhi karega kyoki
+-- is name count(payment_id)>3 se koi column nhi hai table mai sirf iss name se hai payment_id
+
+select customer_id, count(payment_id) from payment where customer_id>3 group by customer_id having count(payment_id)>30; 
+-- having -- uss column pa filter karke data dega jo aggregate function ke satn use hoga
+
+-- get the no of payments for each amount,
+-- 2)count the total no of customer who have done the payment for each amount except amount 2.99 and 0.99
+
+-- get the sum of rental id and the total amount of payment only for the amount 2.99,0.99,5.99 and the sum of rental id 
+-- should be greater than 1000
+
+select count(amount) from  payment where amount not in(2.99,0.99)group by amount;
+select amount,sum(rental_id) ,sum(amount)from payment where amount in(2.99,0.99,5.99) group by amount
+having sum(rental_id)>1000;
+
+
+select * from actor;
+select * from film_actor;
+
+select a.actor_id,a.first_name ,fa.film_id 
+from actor as a
+join film_actor as fa where a.actor_id = fa.actor_id
+group by a.actor_id;
+
+select a.actor_id,count(fa.film_id)
+from actor as a
+join film_actor as fa on a.actor_id = fa.actor_id
+group by a.actor_id ;
+
+select a.actor_id,count(fa.film_id)
+from actor as a
+join film_actor as fa on a.actor_id = fa.actor_id
+group by a.actor_id having count(film_id)>25 ;
+
+
+-- 24-05-25
+
+-- data types in sql
+-- number (int,float,double)
+-- character (char,varchar,string)
+-- date ,timestamp
+-- create statement
+use sakila;
+create table test( id int);
+insert into test values(10);
+select * from test;
+
+--
+use sakila;
+create table test2( id tinyint unsigned) ; -- tiny int 1 byt = 8bit =>2*8 = 256(-128 ,127)
+insert into test2 values(127);
+select * from test2;
+
+--
+use sakila;
+create table test3( id tinyint unsigned) ; -- tiny int 1 byt = 8bit =>2*8 = 256(-128 ,127)
+insert into test3 values(true);
+select * from test3;
+--
+
+
+-- 
+use sakila;
+create table test5( fname char(5)) ; 
+insert into test5 values('ji');
+select * from test5;
+
+-- 
+-- subquery
+-- query within a query
+-- dost -> coco cola
+select * from payment;
+select payment_id,customer_id,rental_id,staff_id,amount from payment where staff_id=(select staff_id from payment where rental_id=1422);
